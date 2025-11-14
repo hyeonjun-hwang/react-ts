@@ -7,21 +7,25 @@ import { SignIn } from "./pages/auth/sign-in.tsx";
 import { SignUp } from "./pages/auth/sign-up.tsx";
 import { CreateTopic } from "./pages/topic/create-topic.tsx";
 import { DetailTopic } from "./pages/topic/detail-topic.tsx";
+import { UpdateTopic } from "./pages/topic/update-topic.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
       <Routes>
         {/* ROOT */}
-        <Route path="/" element={<App />} />
+        <Route index element={<App />} />
 
         {/* AUTH */}
-        <Route path="/sign-in" element={<SignIn />} />
-        <Route path="/sign-up" element={<SignUp />} />
+        <Route path="sign-in" element={<SignIn />} />
+        <Route path="sign-up" element={<SignUp />} />
 
         {/* TOPIC */}
-        <Route path="/create-topic" element={<CreateTopic />} />
-        <Route path="/topic/:id" element={<DetailTopic />} />
+        <Route path="create-topic" element={<CreateTopic />} />
+        <Route path="topic">
+          <Route path=":id" element={<DetailTopic />} />
+          <Route path=":id/edit" element={<UpdateTopic />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   </StrictMode>

@@ -1,5 +1,4 @@
 function App() {
-  return <div>ㅎ2</div>;
+  return <div>app</div>;
 }
-
 export { App };
