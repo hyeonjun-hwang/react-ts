@@ -1,4 +1,4 @@
 function App() {
-  return <div>app</div>;
+  return <div>App</div>;
 }
 export { App };
