@@ -17,8 +17,11 @@ import {
   Label,
   Separator,
 } from "@/components/ui";
+import { useState } from "react";
+import supabase from "@/utils/supabase";
 
 import { Asterisk, ArrowLeft, ChevronRight } from "lucide-react";
+import { toast } from "sonner";
 
 // zod
 import { z } from "zod";
@@ -32,6 +35,9 @@ const formSchema = z.object({
   password: z.string().min(8, {
     message: "8자 이상 입력하삼",
   }),
+  confrimPassword: z.string().min(8, {
+    message: "비번 확인을 입력해주세요",
+  }),
 });
 
 function SignUp() {
@@ -41,17 +47,50 @@ function SignUp() {
     defaultValues: {
       email: "",
       password: "",
+      confrimPassword: "",
     },
   });
 
+  const navigate = useNavigate();
+
+  // 필수 동의 항목 상태값
+  const [serviceAgreed, setServiceAgreed] = useState<boolean>(true); // 서비스 이용 약관(필수) 동의 여부
+  const [privacyAgree, setPrivacyAgree] = useState<boolean>(true); // 개인정보 처리방침 약관(필수) 동의 여부
+
   // submit 핸들러 정의
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
-    console.log(values);
-  }
+    console.log("values :", values);
 
-  const navigate = useNavigate();
+    if (!serviceAgreed || !privacyAgree) {
+      toast.warning("필수 동의항목을 체크안댐!");
+      return;
+    }
+
+    try {
+      const { data, error: supabaseError } = await supabase.auth.signUp({
+        email: values.email,
+        password: values.password,
+      });
+
+      if (supabaseError) {
+        toast.error(supabaseError.code);
+        return;
+      }
+
+      if (data.user && data.session) {
+        toast.success("회원가입 완료!");
+        navigate("/sign-in");
+      }
+
+      console.log("supabaseError :", supabaseError);
+      console.log("data :", data);
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  }
 
   return (
     <div className="w-full max-w-[1328px] h-full flex items-center justify-center">
@@ -115,7 +154,7 @@ function SignUp() {
               {/* 비번 확인 필드 */}
               <FormField
                 control={form.control}
-                name="password"
+                name="confrimPassword"
                 render={({ field }) => (
                   <FormItem>
                     <div className="flex items-center gap-1">
@@ -198,7 +237,7 @@ function SignUp() {
                     navigate("/sign-in");
                   }}
                 >
-                  <ArrowLeft size={20} />
+                  <ArrowLeft />
                 </Button>
                 <Button type="submit" className="flex-1 cursor-pointer">
                   회원가입

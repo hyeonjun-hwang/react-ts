@@ -16,7 +16,10 @@ import {
   Separator,
 } from "@/components/ui";
 
+import supabase from "@/utils/supabase";
 import { useNavigate } from "react-router";
+
+import { toast } from "sonner";
 
 // zod
 import { z } from "zod";
@@ -41,14 +44,35 @@ function SignIn() {
     },
   });
 
-  // submit 핸들러 정의
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values);
-  }
-
   const navigate = useNavigate();
+
+  // submit 핸들러 정의
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    // console.log("values :", values);
+
+    try {
+      const { data, error: signInError } =
+        await supabase.auth.signInWithPassword({
+          email: values.email,
+          password: values.password,
+        });
+
+      // console.log("data: ", data);
+
+      if (!data.user && !data.session) {
+        toast.error(signInError?.message);
+        return;
+      }
+
+      if (data.user && data.session) {
+        toast.success("로그인 성공!");
+        navigate("/");
+      }
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  }
 
   return (
     <div className="w-full max-w-[1328px] h-full flex items-center justify-center">
