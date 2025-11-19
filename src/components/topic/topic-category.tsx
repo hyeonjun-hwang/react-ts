@@ -32,10 +32,11 @@ function TopicCategory() {
 
       {/* 리스트 */}
       <div className="flex flex-col gap-2">
-        {CATEGORIES.map((item) => {
+        {CATEGORIES.map((item, i) => {
           const IconComp = item.icon;
           return (
             <div
+              key={i}
               className={`flex gap-2 text-neutral-400 hover:pl-4 duration-700 ${
                 item.isActive && "text-neutral-900 dark:text-neutral-100 pl-4"
               }`}

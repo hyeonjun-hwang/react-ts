@@ -1,6 +1,11 @@
 import { Search } from "lucide-react";
 import { Button, Input } from "./components/ui";
-import { HotTopic, NewTopic, TopicCategory } from "./components/topic";
+import {
+  HotTopic,
+  NewTopic,
+  TopicAddButton,
+  TopicCategory,
+} from "./components/topic";
 
 function App() {
   return (
@@ -84,6 +89,9 @@ function App() {
           </div>
         </section>
       </div>
+
+      {/* 토픽 추가 플로팅 버튼 */}
+      <TopicAddButton />
     </div>
   );
 }

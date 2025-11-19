@@ -14,10 +14,8 @@ function RootLayout() {
         </main>
         <AppFooter />
 
-        {/* 토픽 추가 플로팅 버튼 */}
-        <TopicAddButton />
         {/* sonner 토스터 */}
-        <Toaster position="bottom-center" richColors />
+        <Toaster position="top-center" richColors />
       </div>
     </ThemeProvider>
   );

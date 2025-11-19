@@ -34,7 +34,13 @@ const formSchema = z.object({
   }),
 });
 
+// 유저 정보 store
+import { useUserStore } from "@/store/userStore";
+
 function SignIn() {
+  // setSession 가져오기
+  const { setSession } = useUserStore();
+
   // form 정의
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -57,7 +63,7 @@ function SignIn() {
           password: values.password,
         });
 
-      // console.log("data: ", data);
+      console.log("data: ", data);
 
       if (!data.user && !data.session) {
         toast.error(signInError?.message);
@@ -67,6 +73,11 @@ function SignIn() {
       if (data.user && data.session) {
         toast.success("로그인 성공!");
         navigate("/");
+
+        // session 넣기
+        setSession(data.session);
+
+        console.log("data.session :", data.session);
       }
     } catch (error) {
       console.log(error);
@@ -173,6 +184,15 @@ function SignIn() {
           </a>
         </CardFooter>
       </Card>
+
+      {/* 임시 */}
+      <div className="pl-10">
+        <p className="text-lg">[로그인 테스트용 계정]</p>
+        <div className="text-2xl text-rose-400">
+          <p>email : test@test.com</p>
+          <p>pw : 123123123</p>
+        </div>
+      </div>
     </div>
   );
 }
