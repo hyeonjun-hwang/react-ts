@@ -12,7 +12,12 @@ dist
 dist-ssr
 *.local
 
+# 환경변수
 .env*
+
+# Cursor rules
+.cursorrules
+.cursor/
 
 # Editor directories and files
 .vscode/*
