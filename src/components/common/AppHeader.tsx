@@ -4,7 +4,7 @@ import { ModeToggle } from "../mode-toggle";
 
 function AppHeader() {
   return (
-    <header className="w-full h-12 min-h-12 flex items-center justify-center">
+    <header className="w-full h-12 min-h-12 flex items-center justify-center sticky top-0 z-2 bg-white dark:bg-black">
       <div className="w-full max-w-[1328px] h-full flex items-center justify-between">
         <div className="flex items-center gap-4 font-medium">
           {/* <img src="" alt="@LOGO" /> */}

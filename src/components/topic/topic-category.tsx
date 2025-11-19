@@ -24,7 +24,7 @@ const CATEGORIES = [
 
 function TopicCategory() {
   return (
-    <aside className="w-60 min-w-60 flex flex-col gap-8">
+    <aside className="w-60 min-w-60 flex flex-col gap-8 sticky top-18">
       <div className="flex items-center justify-start gap-1">
         <p className="text-2xl">카테고리</p>
         <ChevronDown size={30} />
@@ -37,7 +37,7 @@ function TopicCategory() {
           return (
             <div
               className={`flex gap-2 text-neutral-400 hover:pl-4 duration-700 ${
-                item.isActive && "text-white pl-4"
+                item.isActive && "text-neutral-900 dark:text-neutral-100 pl-4"
               }`}
             >
               <Button
