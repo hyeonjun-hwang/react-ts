@@ -2,6 +2,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { AppFooter, AppHeader } from "@/components/common";
 import { Outlet } from "react-router";
 import { Toaster } from "@/components/ui/sonner";
+import { TopicAddButton } from "@/components/topic";
 
 function RootLayout() {
   return (
@@ -13,6 +14,8 @@ function RootLayout() {
         </main>
         <AppFooter />
 
+        {/* 토픽 추가 플로팅 버튼 */}
+        <TopicAddButton />
         {/* sonner 토스터 */}
         <Toaster position="bottom-center" richColors />
       </div>
