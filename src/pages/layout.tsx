@@ -6,7 +6,7 @@ import { Toaster } from "@/components/ui/sonner";
 function RootLayout() {
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-      <div className="w-full h-screen flex flex-col">
+      <div className="w-full h-screen flex flex-col px-4">
         <AppHeader />
         <main className="w-full flex-1 flex justify-center">
           <Outlet />

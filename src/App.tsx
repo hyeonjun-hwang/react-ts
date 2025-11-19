@@ -4,7 +4,7 @@ import { HotTopic, NewTopic, TopicCategory } from "./components/topic";
 
 function App() {
   return (
-    <div className="w-full max-w-[1328px] h-full flex items-start justify-start">
+    <div className="w-full max-w-[1328px] h-full flex items-start justify-start mt-6 gap-6">
       {/* 메뉴바 */}
       <TopicCategory />
 
