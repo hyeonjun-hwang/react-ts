@@ -27,7 +27,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
 const formSchema = z.object({
-  // username: z.string().min(2).max(50),
   email: z.email("이메일 양식으로 입력해주삼"),
   password: z.string().min(8, {
     message: "8자 이상 입력하삼",
@@ -53,7 +52,7 @@ function SignIn() {
   const navigate = useNavigate();
 
   // submit 핸들러 정의
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmitLogin(values: z.infer<typeof formSchema>) {
     // console.log("values :", values);
 
     try {
@@ -74,7 +73,7 @@ function SignIn() {
         toast.success("로그인 성공!");
         navigate("/");
 
-        // session 넣기
+        // setSession 실행
         setSession(data.session);
 
         console.log("data.session :", data.session);
@@ -119,7 +118,10 @@ function SignIn() {
 
           {/* 직접 로그인 */}
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <form
+              onSubmit={form.handleSubmit(onSubmitLogin)}
+              className="space-y-8"
+            >
               {/* 이메일 필드 */}
               <FormField
                 control={form.control}

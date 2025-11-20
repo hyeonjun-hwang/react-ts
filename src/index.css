@@ -126,3 +126,10 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* BlockNote 에디터의 실제 콘텐츠 영역을 타겟팅 */
+.bn-editor {
+  background-color: transparent !important;
+  min-height: 450px !important;
+  padding-top: 1rem;
+}
