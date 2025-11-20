@@ -13,7 +13,6 @@ import {
   SelectGroup,
   SelectItem,
   SelectLabel,
-  Separator,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui";
@@ -137,7 +136,7 @@ function CreateTopic() {
               </div>
 
               {/* Blocknote 텍스트 에디터 UI */}
-              <div className="w-full h-screen">
+              <div className="w-full">
                 <AppTextEditor />
               </div>
             </div>

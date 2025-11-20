@@ -53,30 +53,28 @@ function SignIn() {
 
   // submit 핸들러 정의
   async function onSubmitLogin(values: z.infer<typeof formSchema>) {
-    // console.log("values :", values);
-
     try {
-      const { data, error: signInError } =
-        await supabase.auth.signInWithPassword({
-          email: values.email,
-          password: values.password,
-        });
+      const {
+        data: { session, user },
+        error: signInError,
+      } = await supabase.auth.signInWithPassword({
+        email: values.email,
+        password: values.password,
+      });
 
-      console.log("data: ", data);
-
-      if (!data.user && !data.session) {
+      if (!user && !session) {
         toast.error(signInError?.message);
         return;
       }
 
-      if (data.user && data.session) {
+      if (user && session) {
+        // session 업데이트-
+        setSession(session);
+
         toast.success("로그인 성공!");
         navigate("/");
 
-        // setSession 실행
-        setSession(data.session);
-
-        console.log("data.session :", data.session);
+        console.log("로그인 성공 후 session :", session);
       }
     } catch (error) {
       console.log(error);
