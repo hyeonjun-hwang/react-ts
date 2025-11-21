@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   CaseSensitive,
   ChartNoAxesColumnIncreasing,
@@ -7,17 +8,14 @@ import {
 import { Card, CardContent, CardFooter, Separator } from "../ui";
 import { UserInfo } from "./user-info";
 
-function NewTopic() {
+function NewTopic({ topic }) {
   return (
     <Card className="flex flex-col">
-      <CardContent className="flex items-center">
+      <CardContent className="flex items-center gap-3">
         <div className="flex flex-col justify-between gap-3">
           <div>
             <CaseSensitive color={"lightgray"} />
-            <p className="text-lg font-semibold line-clamp-2">
-              CEO의 다이어리 CEO의 다이어리 CEO의 다이어리 CEO의 다이어리 CEO의
-              다이어리 CEO의 다이어리 CEO의 다이어리 CEO의 다이어리
-            </p>
+            <p className="text-lg font-semibold line-clamp-2">{topic.title}</p>
           </div>
           <p className="line-clamp-3 text-neutral-400">
             'CEO의 다이어리'라는 책을 구매한 이유는 도입부의 어느 구절이 내가
@@ -28,7 +26,7 @@ function NewTopic() {
         </div>
 
         {/* 이미지 */}
-        <img src="/public/vite.svg" alt="" className="h-35" />
+        <img src={topic.thumbnail} alt="" className="h-35 rounded-sm" />
       </CardContent>
 
       <div className="px-6">
@@ -39,7 +37,7 @@ function NewTopic() {
         {/* 유저 정보 */}
         <UserInfo />
 
-        {/* 반응? */}
+        {/* 조회수, 댓글수, 좋아요수 */}
         <div className="flex gap-3">
           <div className="flex items-center gap-1">
             <ChartNoAxesColumnIncreasing size={18} />

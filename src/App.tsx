@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Search } from "lucide-react";
 import { Button, Input } from "./components/ui";
 import {
@@ -6,8 +7,28 @@ import {
   TopicAddButton,
   TopicCategory,
 } from "./components/topic";
+import supabase from "./utils/supabase";
 
 function App() {
+  // topics DB 가져오기
+  const [topics, setTopics] = useState([]);
+  useEffect(() => {
+    const fetchTopics = async () => {
+      let { data: topics, error } = await supabase.from("topics").select("*");
+      console.log("topics:", topics);
+      if (topics) {
+        setTopics(topics);
+      }
+      if (error) {
+        throw error;
+      }
+    };
+    fetchTopics();
+  }, []);
+
+  // auth 데이터 (유저 정보)
+  // 작업 예정...
+
   return (
     <div className="w-full max-w-[1328px] h-full flex items-start justify-start mt-6 gap-6">
       {/* 메뉴바 */}
@@ -82,10 +103,9 @@ function App() {
 
           {/* 카드 영역 */}
           <div className="grid grid-cols-2 gap-6">
-            <NewTopic />
-            <NewTopic />
-            <NewTopic />
-            <NewTopic />
+            {topics.map((topic) => (
+              <NewTopic topic={topic} />
+            ))}
           </div>
         </section>
       </div>
