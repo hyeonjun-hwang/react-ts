@@ -14,6 +14,7 @@ import {
   FormMessage,
   Input,
   Separator,
+  Spinner,
 } from "@/components/ui";
 
 import supabase from "@/utils/supabase";
@@ -35,10 +36,19 @@ const formSchema = z.object({
 
 // 유저 정보 store
 import { useUserStore } from "@/store/userStore";
+import { useState } from "react";
 
 function SignIn() {
-  // setSession 가져오기
-  const { setSession } = useUserStore();
+  // session, setSession 가져오기
+  const { session, setSession } = useUserStore();
+
+  const navigate = useNavigate();
+
+  // 이미 로그인된 경우 홈으로 떨구기
+  if (session) {
+    navigate("/");
+    return;
+  }
 
   // form 정의
   const form = useForm<z.infer<typeof formSchema>>({
@@ -49,11 +59,14 @@ function SignIn() {
     },
   });
 
-  const navigate = useNavigate();
+  // 로그인중 로딩 처리용 state
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   // submit 핸들러 정의
   async function onSubmitLogin(values: z.infer<typeof formSchema>) {
     try {
+      setIsLoggingIn(true);
+
       const {
         data: { session, user },
         error: signInError,
@@ -64,17 +77,24 @@ function SignIn() {
 
       if (!user && !session) {
         toast.error(signInError?.message);
+
+        // 로그인 로딩 종료
+        setIsLoggingIn(false);
         return;
       }
 
       if (user && session) {
-        // session 업데이트-
+        // session 업데이트
         setSession(session);
 
-        toast.success("로그인 성공!");
-        navigate("/");
+        // 로그인 로딩 종료
+        setIsLoggingIn(false);
 
-        console.log("로그인 성공 후 session :", session);
+        // 토스트 띄우고 이전 페이지로 이동
+        toast.success("로그인 성공!");
+        navigate(-1);
+
+        // console.log("로그인 성공 후 session :", session);
       }
     } catch (error) {
       console.log(error);
@@ -166,9 +186,15 @@ function SignIn() {
               />
 
               {/* 로그인 버튼 */}
-              <Button type="submit" className="w-full cursor-pointer">
-                로그인
-              </Button>
+              {isLoggingIn ? (
+                <Button className="w-full" disabled>
+                  <Spinner />
+                </Button>
+              ) : (
+                <Button type="submit" className="w-full cursor-pointer">
+                  로그인
+                </Button>
+              )}
             </form>
           </Form>
         </CardContent>

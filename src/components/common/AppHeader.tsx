@@ -2,14 +2,18 @@ import { NavLink, useNavigate } from "react-router";
 import { Button, Separator, Spinner } from "../ui";
 import { ModeToggle } from "../mode-toggle";
 import { useUserStore } from "@/store/userStore";
+import { useState } from "react";
 
 function AppHeader() {
   const { session, logout } = useUserStore();
   const navigate = useNavigate();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   // 로그아웃 버튼 클릭 핸들러
   const handleLogout = async () => {
+    setIsLoggingOut(true);
     await logout();
+    setIsLoggingOut(false);
     navigate("/"); // 로그아웃 후 홈으로 이동
   };
 
@@ -26,13 +30,24 @@ function AppHeader() {
           {session ? (
             <div className="flex items-center gap-2">
               <p className="font-semibold">{session.user.email}</p>
-              <Button
+              {isLoggingOut ? (
+                <Spinner className="size-5 text-neutral-400" />
+              ) : (
+                <Button
+                  variant="ghost"
+                  onClick={handleLogout}
+                  className="text-neutral-400 cursor-pointer"
+                >
+                  로그아웃
+                </Button>
+              )}
+              {/* <Button
                 variant="ghost"
                 onClick={handleLogout}
                 className="text-neutral-400 cursor-pointer"
               >
                 로그아웃
-              </Button>
+              </Button> */}
             </div>
           ) : (
             <NavLink

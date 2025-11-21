@@ -1,5 +1,5 @@
 // 훅
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 
 // 컴포넌트
 import { AppTextEditor } from "@/components/common";
@@ -15,27 +15,53 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
+  Separator,
+  Spinner,
 } from "@/components/ui";
 import { toast } from "sonner";
 
 // 루시드 아이콘
-import { Asterisk, Image, ImageOff } from "lucide-react";
+import {
+  ArrowLeft,
+  Asterisk,
+  BookOpenCheck,
+  Image,
+  ImageOff,
+  Save,
+  Trash2,
+} from "lucide-react";
 
 // 스토어(zustand)
 import { useUserStore } from "@/store/userStore";
 
 // 라우터
-import { Navigate } from "react-router";
+import { Navigate, useNavigate } from "react-router";
+import supabase from "@/utils/supabase";
+
+// 썸넬 파일명 랜덤 생성용
+import { nanoid } from "nanoid";
 
 function CreateTopic() {
-  // (임시) 로그인 여부 검증
-  const { session } = useUserStore();
+  // 페이지 진입시 스크롤 최상단으로 올리는 용도
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  // navigate
+  const navigate = useNavigate();
+
+  // 로그인 여부 검증
+  const { session, isLoading } = useUserStore();
+
   // console.log("session에 머있나? :", session);
 
-  if (!session) {
-    toast.error("로그인 하고 오렴~");
-    return <Navigate to="/sign-in" />;
-  }
+  useEffect(() => {
+    // 로딩 끝났고 세션 없으면 로그인으로 떨군다
+    if (!isLoading && !session) {
+      toast.error("로그인 하고 오렴~");
+      navigate("/sign-in");
+    }
+  }, [session, isLoading, navigate]);
 
   // topic 상태 관리
   const [title, setTitle] = useState<string>("");
@@ -46,7 +72,7 @@ function CreateTopic() {
   // 썸넬 이미지 file input 참조용
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  // 썸넬 이미지 setThumbnail 처리
+  // 썸넬 이미지 onChange 관리
   const handelChangeThumnail = (e: React.ChangeEvent<HTMLInputElement>) => {
     // console.log("e.target.files : ", e.target.files);
     // console.log("e.target.files[0] : ", e.target.files[0]);
@@ -87,6 +113,7 @@ function CreateTopic() {
           onClick={() => {
             fileInputRef.current?.click();
           }}
+          className="w-full h-full"
         >
           <Image className="size-7" />
         </Button>
@@ -101,8 +128,81 @@ function CreateTopic() {
     );
   };
 
+  const [isPosting, setIsPosting] = useState(false); // topic 저장중 상태 관리
+  // topic 저장 로직
+  const handleSaveTopic = async () => {
+    setIsPosting(true);
+    // 하나도 입력 안됬는지 체크
+    if (!title && !category && !content && !thumbnail) {
+      // 저장 중 상태 종료 처리
+      setIsPosting(false);
+
+      // 최소 1개 이상 입력 요구
+      toast.warning("최소 1개 이상 입력해야함");
+      return;
+    }
+
+    // 썸넬 이미지 파일인 경우 스토리지 저장 후 URL로 상태 업데이트
+    let thumbnailUrl: string | null = null;
+    if (thumbnail && thumbnail instanceof File) {
+      // 업로드할 썸넬 파일 정의
+      const fileExt = thumbnail.name.split(".").pop();
+      const fileName = `${nanoid()}.${fileExt}`;
+      const filePath = `topics/${fileName}`;
+
+      // 썸넬 파일 스토리지에 업로드
+      const { data, error } = await supabase.storage
+        .from("files")
+        .upload(filePath, thumbnail);
+
+      // 스토리지에서 썸넬 이미지 URL 가져오기
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("files").getPublicUrl(filePath);
+
+      thumbnailUrl = publicUrl;
+      // console.log("publicUrl: ", publicUrl);
+    }
+
+    // 토픽 데이터 DB에 저장하는 로직
+    const { data, error: insertError } = await supabase
+      .from("topics")
+      .insert([
+        {
+          title: title,
+          category: category,
+          thumbnail: thumbnailUrl,
+          status: "TEMP",
+          user_id: session.user.id,
+        },
+      ])
+      .select();
+
+    // insert 에러시
+    if (insertError) {
+      setIsPosting(false);
+      throw insertError;
+    }
+
+    // insert 완료시
+    if (data) {
+      setIsPosting(false);
+      toast.success("토픽이 저장되었습니다");
+      navigate(-1);
+    }
+  };
+
+  // 로딩중일때 스피너
+  if (isLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <Spinner />
+      </div>
+    );
+  }
+
   return (
-    <main className="w-full max-w-[1328px] h-full flex flex-col items-center justify-center gap-4">
+    <main className="w-full max-w-[1328px] h-screen flex flex-col items-center justify-center gap-4">
       <div className="w-full max-w-[1328px] h-full flex gap-6 py-6">
         {/* STEP 01 */}
         <div className="flex-1 flex flex-col gap-6">
@@ -211,6 +311,43 @@ function CreateTopic() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* 버튼 그룹 */}
+      <div className="fixed bottom-12 flex items-center gap-2">
+        <Button
+          variant={"outline"}
+          size={"icon"}
+          onClick={() => {
+            navigate(-1);
+          }}
+        >
+          <ArrowLeft />
+        </Button>
+
+        {/* 저장 버튼 (분기) */}
+        {isPosting ? (
+          <Button variant={"outline"} className="px-8!" disabled>
+            <Spinner />
+          </Button>
+        ) : (
+          <Button
+            variant={"outline"}
+            className="px-5! cursor-pointer"
+            onClick={handleSaveTopic}
+          >
+            <Save />
+            저장
+          </Button>
+        )}
+        <Button variant={"outline"} className="px-5!">
+          <BookOpenCheck />
+          발행
+        </Button>
+        <Separator orientation="vertical" className="h-5!" />
+        <Button variant={"outline"} size={"icon"} className="cursor-pointer">
+          <Trash2 />
+        </Button>
       </div>
     </main>
   );

@@ -20,8 +20,7 @@ function AuthListener() {
         // auth events 발생했으니 새로운 세션 정보로 상태 업데이트
         setSession(session);
       });
-
-      console.log("AuthListener에서 session : ", session);
+      // console.log("AuthListener에서 session : ", session);
 
       // 클린업 함수 (컴포넌트 언마운트 시 실행)
       return () => {
