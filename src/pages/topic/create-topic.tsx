@@ -224,7 +224,7 @@ function CreateTopic() {
   }
 
   return (
-    <main className="w-full max-w-[1328px] h-screen flex flex-col items-center justify-center gap-4">
+    <main className="w-full max-w-[1328px] h-fit flex flex-col items-center justify-center gap-4">
       <div className="w-full max-w-[1328px] h-full flex gap-6 py-6">
         {/* STEP 01 */}
         <div className="flex-1 flex flex-col gap-6">
@@ -347,7 +347,7 @@ function CreateTopic() {
         >
           <ArrowLeft />
         </Button>
-
+        <Separator orientation="vertical" className="h-5!" />
         {/* 저장 버튼 (분기) */}
         {isPosting ? (
           <Button variant={"outline"} className="px-8!" disabled>
@@ -370,12 +370,10 @@ function CreateTopic() {
           발행
         </Button> */}
 
-        <Separator orientation="vertical" className="h-5!" />
-
         {/* 삭제 버튼 */}
-        <Button variant={"outline"} size={"icon"} className="cursor-pointer">
+        {/* <Button variant={"outline"} size={"icon"} className="cursor-pointer">
           <Trash2 />
-        </Button>
+        </Button> */}
       </div>
 
       {/* 발행 컴펌창 */}
