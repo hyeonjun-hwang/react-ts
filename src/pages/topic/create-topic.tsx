@@ -3,6 +3,7 @@ import React, { useState, useRef, useEffect } from "react";
 
 // 컴포넌트
 import { AppTextEditor } from "@/components/common";
+// import { ConfirmPublish } from "./confirm-publish";
 
 // shadcn UI
 import {
@@ -17,6 +18,15 @@ import {
   SelectValue,
   Separator,
   Spinner,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
 } from "@/components/ui";
 import { toast } from "sonner";
 
@@ -35,7 +45,7 @@ import {
 import { useUserStore } from "@/store/userStore";
 
 // 라우터
-import { Navigate, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import supabase from "@/utils/supabase";
 
 // 썸넬 파일명 랜덤 생성용
@@ -52,9 +62,7 @@ function CreateTopic() {
 
   // 로그인 여부 검증
   const { session, isLoading } = useUserStore();
-
   // console.log("session에 머있나? :", session);
-
   useEffect(() => {
     // 로딩 끝났고 세션 없으면 로그인으로 떨군다
     if (!isLoading && !session) {
@@ -65,7 +73,7 @@ function CreateTopic() {
 
   // topic 상태 관리
   const [title, setTitle] = useState<string>("");
-  const [content, setContent] = useState(null); // 텍스트 에디터에 담긴 데이터
+  const [content, setContent] = useState([]); // 텍스트 에디터에 담긴 데이터
   const [category, setCategory] = useState<string>("");
   const [thumbnail, setThumbnail] = useState<File | string | null>(null);
 
@@ -128,9 +136,12 @@ function CreateTopic() {
     );
   };
 
-  const [isPosting, setIsPosting] = useState(false); // topic 저장중 상태 관리
   // topic 저장 로직
+  const [isPosting, setIsPosting] = useState(false); // topic 저장중 상태
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false); // 발행컴펌창 상태
+  const [savedTopic, setSavedTopic] = useState(null); // insert한 topic 데이터
   const handleSaveTopic = async () => {
+    console.log("content: ", content);
     setIsPosting(true);
     // 하나도 입력 안됬는지 체크
     if (!title && !category && !content && !thumbnail) {
@@ -142,7 +153,7 @@ function CreateTopic() {
       return;
     }
 
-    // 썸넬 이미지 파일인 경우 스토리지 저장 후 URL로 상태 업데이트
+    // 썸넬이 파일인 경우 스토리지 저장해 URL로 변환한 후 업데이트
     let thumbnailUrl: string | null = null;
     if (thumbnail && thumbnail instanceof File) {
       // 업로드할 썸넬 파일 정의
@@ -170,6 +181,7 @@ function CreateTopic() {
       .insert([
         {
           title: title,
+          content: JSON.stringify(content),
           category: category,
           thumbnail: thumbnailUrl,
           status: "TEMP",
@@ -187,9 +199,19 @@ function CreateTopic() {
     // insert 완료시
     if (data) {
       setIsPosting(false);
-      toast.success("토픽이 저장되었습니다");
-      navigate(-1);
+
+      console.log("data[0]: ", data[0]);
+
+      setIsConfirmOpen(true);
+      setSavedTopic(data[0]);
     }
+  };
+
+  const handlePublishTopic = async () => {
+    const { error } = await supabase
+      .from("topics")
+      .update({ status: "PUBLISH" })
+      .eq("id", savedTopic.id);
   };
 
   // 로딩중일때 스피너
@@ -237,7 +259,7 @@ function CreateTopic() {
 
               {/* Blocknote 텍스트 에디터 UI */}
               <div className="w-full">
-                <AppTextEditor />
+                <AppTextEditor onSetContent={setContent} />
               </div>
             </div>
           </div>
@@ -315,6 +337,7 @@ function CreateTopic() {
 
       {/* 버튼 그룹 */}
       <div className="fixed bottom-12 flex items-center gap-2">
+        {/* 뒤로가기 버튼 */}
         <Button
           variant={"outline"}
           size={"icon"}
@@ -333,22 +356,58 @@ function CreateTopic() {
         ) : (
           <Button
             variant={"outline"}
-            className="px-5! cursor-pointer"
+            className="px-10! cursor-pointer"
             onClick={handleSaveTopic}
           >
             <Save />
             저장
           </Button>
         )}
-        <Button variant={"outline"} className="px-5!">
+
+        {/* 발행 버튼 */}
+        {/* <Button variant={"outline"} className="px-5!">
           <BookOpenCheck />
           발행
-        </Button>
+        </Button> */}
+
         <Separator orientation="vertical" className="h-5!" />
+
+        {/* 삭제 버튼 */}
         <Button variant={"outline"} size={"icon"} className="cursor-pointer">
           <Trash2 />
         </Button>
       </div>
+
+      {/* 발행 컴펌창 */}
+      <AlertDialog open={isConfirmOpen}>
+        {/* <AlertDialogTrigger>Open</AlertDialogTrigger> */}
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>토픽 저장 완료</AlertDialogTitle>
+            <AlertDialogDescription>
+              사람들이 볼 수 있도록 발행도 하까요?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              onClick={() => {
+                navigate("/");
+              }}
+            >
+              홈으로 가기
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                handlePublishTopic();
+                navigate("/");
+                toast.success("토픽이 발행되었습니다");
+              }}
+            >
+              발행하기
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </main>
   );
 }

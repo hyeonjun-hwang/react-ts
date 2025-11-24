@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Search } from "lucide-react";
-import { Button, Input } from "./components/ui";
+import { Button, Input, Skeleton } from "./components/ui";
 import {
   HotTopic,
   NewTopic,
@@ -10,16 +10,26 @@ import {
 import supabase from "./utils/supabase";
 
 function App() {
-  // topics DB 가져오기
+  // supabase에서 발행 상태인 topic 가져오기
   const [topics, setTopics] = useState([]);
+  const [isFetching, setIsFetching] = useState(false);
   useEffect(() => {
     const fetchTopics = async () => {
-      let { data: topics, error } = await supabase.from("topics").select("*");
-      console.log("topics:", topics);
+      setIsFetching(true);
+      let { data: topics, error } = await supabase
+        .from("topics")
+        .select("*")
+        .eq("status", "PUBLISH");
+
+      // console.log("topics:", topics);
+
       if (topics) {
+        setIsFetching(false);
         setTopics(topics);
       }
+
       if (error) {
+        setIsFetching(false);
         throw error;
       }
     };
@@ -84,6 +94,7 @@ function App() {
             <HotTopic />
             <HotTopic />
             <HotTopic />
+            <HotTopic />
           </div>
         </section>
 
@@ -103,9 +114,11 @@ function App() {
 
           {/* 카드 영역 */}
           <div className="grid grid-cols-2 gap-6">
-            {topics.map((topic) => (
-              <NewTopic topic={topic} />
-            ))}
+            {!isFetching ? (
+              topics.map((topic, i) => <NewTopic key={i} topic={topic} />)
+            ) : (
+              <Skeleton className="h-[300px]" />
+            )}
           </div>
         </section>
       </div>

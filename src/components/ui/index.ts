@@ -10,3 +10,5 @@ export * from "./separator";
 export * from "./sonner";
 export * from "./spinner";
 export * from "./select";
+export * from "./skeleton";
+export * from "./alert-dialog";

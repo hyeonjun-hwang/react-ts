@@ -9,7 +9,7 @@ import { ko } from "@blocknote/core/locales";
 
 import { useTheme } from "../theme-provider";
 
-function AppTextEditor() {
+function AppTextEditor({ onSetContent }) {
   // blocknote 테마에 shadcn 다크모드 테마 적용
   const { theme } = useTheme();
   const blocknoteTheme =
@@ -19,13 +19,19 @@ function AppTextEditor() {
         : "light"
       : theme;
 
-  // 스타일 수정
-
   // Create a new editor instance
   const editor = useCreateBlockNote({ dictionary: ko });
 
   // Render the editor
-  return <BlockNoteView editor={editor} theme={blocknoteTheme} />;
+  return (
+    <BlockNoteView
+      editor={editor}
+      theme={blocknoteTheme}
+      onChange={() => {
+        onSetContent(editor.document);
+      }}
+    />
+  );
 }
 
 export { AppTextEditor };
