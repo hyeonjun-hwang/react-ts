@@ -81,7 +81,7 @@ function SignUp() {
 
       if (data.user && data.session) {
         toast.success("회원가입 완료!");
-        navigate("/sign-in");
+        navigate("/");
       }
 
       console.log("supabaseError :", supabaseError);

@@ -102,6 +102,22 @@ function SignIn() {
     }
   }
 
+  // 구글 로그인
+  const handleGoogleSignIn = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+      });
+
+      if (error) {
+        toast.error(error.message);
+      }
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  };
+
   return (
     <div className="w-full max-w-[1328px] h-full flex items-center justify-center">
       <Card className="w-full max-w-sm border-0 bg-transparent">
@@ -120,7 +136,11 @@ function SignIn() {
               <img src="/icons/" alt="@GOOGLE" className="w-4" />
               네이버 로그인
             </Button>
-            <Button variant="outline" className="w-full cursor-pointer">
+            <Button
+              variant="outline"
+              className="w-full cursor-pointer"
+              onClick={handleGoogleSignIn}
+            >
               <img src="/icons/google.svg" alt="@GOOGLE" className="w-4" />
               구글 로그인
             </Button>
