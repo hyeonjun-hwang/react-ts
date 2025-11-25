@@ -12,32 +12,72 @@ import supabase from "./utils/supabase";
 import type { Topic } from "./types/topic";
 
 function App() {
-  // supabase에서 발행 상태인 topic 가져오기
+  // 카테고리 변경 반영 로직
+  const [categoryValue, setCategoryValue] = useState<string>("all");
+  const handleCategoryChange = (value: string) => {
+    setCategoryValue(value);
+  };
+
+  // console.log("categoryValue: ", categoryValue);
+
+  // 검색 반영 로직
+  const [inputValue, setSearchValue] = useState<string>("");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const handleSearch = () => {
+    // 검색 클릭 또는 enter 칠때 그 inputValue로 필터링
+    setSearchQuery(inputValue);
+  };
+
+  // inputValue 모두 지우면 검색 필터링 해제
+  useEffect(() => {
+    if (inputValue === "") {
+      setSearchQuery("");
+    }
+  }, [inputValue]);
+
+  // console.log("inputValue: ", inputValue);
+  // console.log("searchQuery: ", searchQuery);
+
+  // supabase에서 topic 가져오기
   const [topics, setTopics] = useState<Topic[]>([]);
-  const [isFetching, setIsFetching] = useState(false);
+  const [isFetching, setIsFetching] = useState(false); // fetch중 상태
+  const fetchTopics = async () => {
+    setIsFetching(true);
+
+    // 기본적으로 가져오는 발행된 전체 topic 리스트
+    let query = supabase.from("topics").select("*").eq("status", "PUBLISH");
+
+    // 카테고리가 '전체'가 아니면 카테고리 필터링 조건
+    if (categoryValue !== "all") {
+      query = query.eq("category", `${categoryValue}`);
+    }
+
+    // 검색어가 title에 포함된 토픽 필터링 조건
+    if (searchQuery) {
+      query = query.ilike("title", `%${searchQuery}%`);
+    }
+
+    // supabase에 요청
+    let { data: topics, error } = await query;
+
+    // console.log("topics:", topics);
+
+    if (topics) {
+      setIsFetching(false);
+      setTopics(topics);
+    }
+
+    if (error) {
+      setIsFetching(false);
+      throw error;
+    }
+  };
+
+  console.log("topics: ", topics);
 
   useEffect(() => {
-    const fetchTopics = async () => {
-      setIsFetching(true);
-      let { data: topics, error } = await supabase
-        .from("topics")
-        .select("*")
-        .eq("status", "PUBLISH");
-
-      // console.log("topics:", topics);
-
-      if (topics) {
-        setIsFetching(false);
-        setTopics(topics);
-      }
-
-      if (error) {
-        setIsFetching(false);
-        throw error;
-      }
-    };
     fetchTopics();
-  }, []);
+  }, [categoryValue, searchQuery]);
 
   // auth 데이터 (유저 정보)
   // 작업 예정...
@@ -45,7 +85,10 @@ function App() {
   return (
     <div className="w-full max-w-[1328px] h-full flex items-start justify-start mt-6 gap-6">
       {/* 메뉴바 */}
-      <TopicCategory />
+      <TopicCategory
+        onHandleCategoryChange={handleCategoryChange}
+        categoryValue={categoryValue}
+      />
 
       {/* 메인 영역 */}
       <div className="flex-1 flex flex-col min-w-0 gap-10">
@@ -66,10 +109,19 @@ function App() {
             <Input
               className="px-11 py-6 rounded-full"
               placeholder="관심 있는 클래스, 토픽"
+              onChange={(event) => {
+                setSearchValue(event.target.value);
+              }}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  handleSearch();
+                }
+              }}
             ></Input>
             <Button
               className="w-fit h-7 absolute right-3 rounded-full"
               variant={"outline"}
+              onClick={handleSearch}
             >
               검색
             </Button>
@@ -117,8 +169,19 @@ function App() {
 
           {/* 카드 영역 */}
           <div className="grid grid-cols-2 gap-6">
-            {!isFetching ? (
+            {/* {!isFetching ? (
               topics.map((topic, i) => <NewTopic key={i} topic={topic} />)
+            ) : (
+              <Skeleton className="h-[300px]" />
+            )} */}
+            {!isFetching ? (
+              topics.length > 0 ? (
+                topics.map((topic, i) => <NewTopic key={i} topic={topic} />)
+              ) : (
+                <p className="h-50 flex items-center justify-center col-span-2 text-center text-neutral-400">
+                  토픽이 없습니다.
+                </p>
+              )
             ) : (
               <Skeleton className="h-[300px]" />
             )}
