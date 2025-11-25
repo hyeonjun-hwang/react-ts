@@ -8,8 +8,11 @@ import { Card, CardContent, CardFooter, Separator } from "../ui";
 import { UserInfo } from "./user-info";
 import { useNavigate } from "react-router";
 
+// 타입 가져오기
+import type { Topic } from "@/types/topic";
+
 // 텍스트 에디터의 콘텐츠 부분 텍스트 추출용
-function extractTextFromContent(topic) {
+function extractTextFromContent(topic: Topic) {
   // content 없으면 빈값 반환
   if (!topic?.content) return "";
 
@@ -32,7 +35,7 @@ function extractTextFromContent(topic) {
   return result;
 }
 
-function NewTopic({ topic }) {
+function NewTopic({ topic }: { topic: Topic }) {
   const navigate = useNavigate();
   return (
     <Card

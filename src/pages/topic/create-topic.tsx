@@ -26,20 +26,11 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui";
 import { toast } from "sonner";
 
 // 루시드 아이콘
-import {
-  ArrowLeft,
-  Asterisk,
-  BookOpenCheck,
-  Image,
-  ImageOff,
-  Save,
-  Trash2,
-} from "lucide-react";
+import { ArrowLeft, Asterisk, Image, ImageOff, Save } from "lucide-react";
 
 // 스토어(zustand)
 import { useUserStore } from "@/store/userStore";
@@ -50,6 +41,10 @@ import supabase from "@/utils/supabase";
 
 // 썸넬 파일명 랜덤 생성용
 import { nanoid } from "nanoid";
+
+// 타입 가져오기
+import type { Block } from "@blocknote/core"; // blockNote의 block 타입
+import type { Topic } from "@/types/topic"; // Topic 타입
 
 function CreateTopic() {
   // 페이지 진입시 스크롤 최상단으로 올리는 용도
@@ -73,7 +68,7 @@ function CreateTopic() {
 
   // topic 상태 관리
   const [title, setTitle] = useState<string>("");
-  const [content, setContent] = useState([]); // 텍스트 에디터에 담긴 데이터
+  const [content, setContent] = useState<Block[]>([]); // 텍스트 에디터에 담긴 데이터
   const [category, setCategory] = useState<string>("");
   const [thumbnail, setThumbnail] = useState<File | string | null>(null);
 
@@ -139,7 +134,7 @@ function CreateTopic() {
   // topic 저장 로직
   const [isPosting, setIsPosting] = useState(false); // topic 저장중 상태
   const [isConfirmOpen, setIsConfirmOpen] = useState(false); // 발행컴펌창 상태
-  const [savedTopic, setSavedTopic] = useState(null); // insert한 topic 데이터
+  const [savedTopic, setSavedTopic] = useState<Topic | null>(null); // insert한 topic 데이터
   const handleSaveTopic = async () => {
     console.log("content: ", content);
     setIsPosting(true);
@@ -162,9 +157,13 @@ function CreateTopic() {
       const filePath = `topics/${fileName}`;
 
       // 썸넬 파일 스토리지에 업로드
-      const { data, error } = await supabase.storage
+      const { error } = await supabase.storage
         .from("files")
         .upload(filePath, thumbnail);
+
+      if (error) {
+        toast.error(error.message);
+      }
 
       // 스토리지에서 썸넬 이미지 URL 가져오기
       const {
@@ -185,7 +184,7 @@ function CreateTopic() {
           category: category,
           thumbnail: thumbnailUrl,
           status: "TEMP",
-          user_id: session.user.id,
+          user_id: session?.user.id,
         },
       ])
       .select();
@@ -208,10 +207,19 @@ function CreateTopic() {
   };
 
   const handlePublishTopic = async () => {
-    const { error } = await supabase
-      .from("topics")
-      .update({ status: "PUBLISH" })
-      .eq("id", savedTopic.id);
+    try {
+      const { error } = await supabase
+        .from("topics")
+        .update({ status: "PUBLISH" })
+        .eq("id", savedTopic?.id);
+
+      if (error) {
+        toast.error(error.message);
+      }
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
   };
 
   // 로딩중일때 스피너
@@ -259,7 +267,11 @@ function CreateTopic() {
 
               {/* Blocknote 텍스트 에디터 UI */}
               <div className="w-full">
-                <AppTextEditor onSetContent={setContent} />
+                <AppTextEditor
+                  content={content}
+                  onSetContent={setContent}
+                  readonly={true}
+                />
               </div>
             </div>
           </div>

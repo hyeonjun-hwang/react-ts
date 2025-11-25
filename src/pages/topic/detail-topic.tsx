@@ -11,27 +11,41 @@ import supabase from "@/utils/supabase";
 import { useNavigate, useParams } from "react-router";
 
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
   Button,
   Card,
-  CardAction,
   CardContent,
-  CardDescription,
   CardFooter,
-  CardHeader,
-  CardTitle,
   Separator,
   Spinner,
 } from "@/components/ui";
 import { ArrowLeft, Trash2, UserPlus, UserSearch } from "lucide-react";
-import { TopicContentViewer } from "@/components/common";
+import { AppTextEditor } from "@/components/common";
 import { UserInfo } from "@/components/topic";
+import type { Topic } from "@/types/topic";
+import { toast } from "sonner";
+
+import { useUserStore } from "@/store/userStore";
 
 function DetailTopic() {
-  const { id } = useParams();
+  const { id: topic_id } = useParams();
   const navigate = useNavigate();
-  const [topic, setTopic] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [topic, setTopic] = useState<Topic | null>();
+  const [isLoading, setIsLoading] = useState(false);
 
+  // 세션 정보 가져오기
+  const { session } = useUserStore();
+  // const session: Session = useUserStore((state) => state.session);
+
+  console.log("session :", session);
   useEffect(() => {
     setIsLoading(true);
     // supabase에서 해당 토픽 가져오기 (url 파라미터 id로 매핑)
@@ -40,7 +54,7 @@ function DetailTopic() {
       const { data, error } = await supabase
         .from("topics")
         .select("*")
-        .eq("id", id);
+        .eq("id", topic_id);
 
       // 에러처리
       if (error) {
@@ -54,18 +68,47 @@ function DetailTopic() {
       }
 
       setTopic(data[0]);
-
       setIsLoading(false);
 
       // (임시) 확인용
-      console.log("data :", data);
-      console.log("data[0] :", data[0]);
+      // console.log("data :", data);
+      // console.log("data[0] :", data[0]);
     };
 
     fetchTopic();
   }, []);
 
-  console.log("topic: ", topic);
+  // console.log("topic: ", topic);
+
+  // 토픽 삭제 함수
+  const handleDeleteTopic = async () => {
+    // 현재 session과 작성자(user_id) 다르면 빠꾸
+    if (session?.user.id !== topic?.user_id) {
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      // 해당 topic DB 삭제 로직
+      const { error } = await supabase
+        .from("topics")
+        .delete()
+        .eq("id", topic?.id);
+
+      if (error) {
+        toast.error(error.message);
+        return;
+      }
+
+      toast.success("토픽이 삭제되었습니다");
+      navigate("/");
+    } catch (error) {
+      console.log(error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // useEffect 돌기 전 로딩화면 처리
   if (isLoading)
@@ -74,6 +117,10 @@ function DetailTopic() {
         <Spinner />
       </div>
     );
+
+  if (!topic) {
+    return null;
+  }
 
   return (
     <main className="w-full max-w-[1328px] h-full flex flex-col justify-start gap-2 pb-6">
@@ -97,10 +144,36 @@ function DetailTopic() {
             >
               <ArrowLeft />
             </Button>
+
             {/* 삭제 */}
-            <Button variant={"outline"} size={"icon"}>
-              <Trash2 />
-            </Button>
+            {session?.user.id === topic?.user_id && (
+              <AlertDialog>
+                <AlertDialogTrigger>
+                  <Button variant={"outline"} size={"icon"}>
+                    <Trash2 />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>
+                      토픽을 삭제하시겠습니까?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      삭제된 토픽은 복원할 수 없습니다
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>취소하기</AlertDialogCancel>
+                    <AlertDialogAction
+                      className="bg-red-500"
+                      onClick={handleDeleteTopic}
+                    >
+                      삭제하기
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
           </div>
 
           {/* 타이틀 영역 */}
@@ -127,8 +200,7 @@ function DetailTopic() {
       <div className="relative flex gap-6">
         {/* content 부분 */}
         <div className="flex flex-col flex-3/4 gap-6">
-          {/* <div>{topic.content}</div> */}
-          <TopicContentViewer content={JSON.parse(topic.content)} />
+          <AppTextEditor content={JSON.parse(topic.content)} readonly={false} />
           <div>(조회수, 좋아요 영역)</div>
           <div>(댓글 영역)</div>
         </div>

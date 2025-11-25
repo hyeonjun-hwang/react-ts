@@ -9,10 +9,13 @@ import {
 } from "./components/topic";
 import supabase from "./utils/supabase";
 
+import type { Topic } from "./types/topic";
+
 function App() {
   // supabase에서 발행 상태인 topic 가져오기
-  const [topics, setTopics] = useState([]);
+  const [topics, setTopics] = useState<Topic[]>([]);
   const [isFetching, setIsFetching] = useState(false);
+
   useEffect(() => {
     const fetchTopics = async () => {
       setIsFetching(true);
