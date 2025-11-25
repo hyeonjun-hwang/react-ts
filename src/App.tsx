@@ -45,7 +45,11 @@ function App() {
     setIsFetching(true);
 
     // 기본적으로 가져오는 발행된 전체 topic 리스트
-    let query = supabase.from("topics").select("*").eq("status", "PUBLISH");
+    let query = supabase
+      .from("topics")
+      .select("*")
+      .eq("status", "PUBLISH")
+      .order("created_at", { ascending: false });
 
     // 카테고리가 '전체'가 아니면 카테고리 필터링 조건
     if (categoryValue !== "all") {

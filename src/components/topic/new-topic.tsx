@@ -56,7 +56,11 @@ function NewTopic({ topic }: { topic: Topic }) {
         </div>
 
         {/* 이미지 */}
-        <img src={topic.thumbnail} alt="" className="h-35 rounded-sm" />
+        <img
+          src={topic.thumbnail}
+          alt=""
+          className="h-35 aspect-4/3 rounded-sm object-cover"
+        />
       </CardContent>
 
       <div className="px-6">
