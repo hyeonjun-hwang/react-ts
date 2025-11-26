@@ -43,9 +43,7 @@ function DetailTopic() {
 
   // 세션 정보 가져오기
   const { session } = useUserStore();
-  // const session: Session = useUserStore((state) => state.session);
 
-  console.log("session :", session);
   useEffect(() => {
     setIsLoading(true);
     // supabase에서 해당 토픽 가져오기 (url 파라미터 id로 매핑)
@@ -53,7 +51,7 @@ function DetailTopic() {
       // id일치하는 topic 데이터 가져오기
       const { data, error } = await supabase
         .from("topics")
-        .select("*")
+        .select(`*, profiles(*)`)
         .eq("id", topic_id);
 
       // 에러처리
@@ -148,7 +146,7 @@ function DetailTopic() {
             {/* 삭제 */}
             {session?.user.id === topic?.user_id && (
               <AlertDialog>
-                <AlertDialogTrigger>
+                <AlertDialogTrigger asChild>
                   <Button variant={"outline"} size={"icon"}>
                     <Trash2 />
                   </Button>
@@ -213,7 +211,8 @@ function DetailTopic() {
             <CardAction>Card Action</CardAction>
           </CardHeader> */}
           <CardContent className="flex flex-col gap-4">
-            <UserInfo />
+            {/* 유저 정보 */}
+            <UserInfo profile={topic.profiles} />
             <p className="text-xs text-neutral-400">팔로우 0명</p>
           </CardContent>
           <CardFooter className="flex justify-center gap-4">

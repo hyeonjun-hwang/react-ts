@@ -10,6 +10,9 @@ import { useNavigate } from "react-router";
 
 // 타입 가져오기
 import type { Topic } from "@/types/topic";
+interface Props {
+  topic: Topic;
+}
 
 // 텍스트 에디터의 콘텐츠 부분 텍스트 추출용
 function extractTextFromContent(topic: Topic) {
@@ -35,7 +38,7 @@ function extractTextFromContent(topic: Topic) {
   return result;
 }
 
-function NewTopic({ topic }: { topic: Topic }) {
+function NewTopic({ topic }: Props) {
   const navigate = useNavigate();
   return (
     <Card
@@ -69,7 +72,7 @@ function NewTopic({ topic }: { topic: Topic }) {
 
       <CardFooter className="flex items-end justify-between">
         {/* 유저 정보 */}
-        <UserInfo />
+        <UserInfo profile={topic.profiles} />
 
         {/* 조회수, 댓글수, 좋아요수 */}
         <div className="flex gap-3">

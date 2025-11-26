@@ -8,8 +8,6 @@ import "@blocknote/core/fonts/inter.css";
 import { ko } from "@blocknote/core/locales";
 import { useTheme } from "../theme-provider";
 
-import { useEffect } from "react";
-
 import type { Block } from "@blocknote/core";
 
 interface Props {
@@ -29,14 +27,11 @@ function AppTextEditor({ content, onSetContent, readonly }: Props) {
       : theme;
 
   // Create a new editor instance
-  const editor = useCreateBlockNote({ dictionary: ko });
-
-  // 만약 topic.content가 있으면 그 content로 변경해주는 로직
-  useEffect(() => {
-    if (content && content.length > 0) {
-      editor.replaceBlocks(editor.document, content);
-    }
-  }, []);
+  const editor = useCreateBlockNote({
+    dictionary: ko,
+    // 만약 topic.content가 있으면 그 content로 변경해주는 로직
+    initialContent: content && content.length > 0 ? content : undefined,
+  });
 
   // Render the editor
   return (

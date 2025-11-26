@@ -56,7 +56,7 @@ function CreateTopic() {
   const navigate = useNavigate();
 
   // 로그인 여부 검증
-  const { session, isLoading } = useUserStore();
+  const { session, isLoading, profile } = useUserStore();
   // console.log("session에 머있나? :", session);
   useEffect(() => {
     // 로딩 끝났고 세션 없으면 로그인으로 떨군다
@@ -185,6 +185,7 @@ function CreateTopic() {
           thumbnail: thumbnailUrl,
           status: "TEMP",
           user_id: session?.user.id,
+          profile_id: profile?.id,
         },
       ])
       .select();

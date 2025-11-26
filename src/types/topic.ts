@@ -1,3 +1,5 @@
+import type { Profile } from "./profile";
+
 export interface Topic {
     id: number;
     author: string; // 해당 토픽을 작성한 유저의 id
@@ -8,4 +10,6 @@ export interface Topic {
     thumbnail: string;
     title: string;
     user_id : string
+    profile_id:number
+    profiles:Profile
 }

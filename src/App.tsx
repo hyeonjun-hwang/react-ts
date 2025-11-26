@@ -7,11 +7,15 @@ import {
   TopicAddButton,
   TopicCategory,
 } from "./components/topic";
-import supabase from "./utils/supabase";
+// import supabase from "./utils/supabase";
 
-import type { Topic } from "./types/topic";
+// import type { Topic } from "./types/topic";
+import { useTopicStore } from "./store/topicStore";
 
 function App() {
+  // store에서 topic 상태 가져오기
+  const { topics, isLoading, fetchTopics } = useTopicStore();
+
   // 카테고리 변경 반영 로직
   const [categoryValue, setCategoryValue] = useState<string>("all");
   const handleCategoryChange = (value: string) => {
@@ -35,56 +39,19 @@ function App() {
     }
   }, [inputValue]);
 
-  // console.log("inputValue: ", inputValue);
-  // console.log("searchQuery: ", searchQuery);
-
-  // supabase에서 topic 가져오기
-  const [topics, setTopics] = useState<Topic[]>([]);
-  const [isFetching, setIsFetching] = useState(false); // fetch중 상태
-  const fetchTopics = async () => {
-    setIsFetching(true);
-
-    // 기본적으로 가져오는 발행된 전체 topic 리스트
-    let query = supabase
-      .from("topics")
-      .select("*")
-      .eq("status", "PUBLISH")
-      .order("created_at", { ascending: false });
-
-    // 카테고리가 '전체'가 아니면 카테고리 필터링 조건
-    if (categoryValue !== "all") {
-      query = query.eq("category", `${categoryValue}`);
-    }
-
-    // 검색어가 title에 포함된 토픽 필터링 조건
-    if (searchQuery) {
-      query = query.ilike("title", `%${searchQuery}%`);
-    }
-
-    // supabase에 요청
-    let { data: topics, error } = await query;
-
-    // console.log("topics:", topics);
-
-    if (topics) {
-      setIsFetching(false);
-      setTopics(topics);
-    }
-
-    if (error) {
-      setIsFetching(false);
-      throw error;
-    }
-  };
-
-  console.log("topics: ", topics);
+  // // (임시 : topics 콘솔 로그 확인용)
+  // console.log("topics: ", topics);
 
   useEffect(() => {
-    fetchTopics();
-  }, [categoryValue, searchQuery]);
+    fetchTopics(categoryValue, searchQuery);
+  }, [categoryValue, searchQuery, fetchTopics]);
 
-  // auth 데이터 (유저 정보)
-  // 작업 예정...
+  // // (임시 : session, profile 콘솔 로그 확인용)
+  // const { session, profile } = useUserStore();
+  // useEffect(() => {
+  //   console.log("session : ", session);
+  //   console.log("profile : ", profile);
+  // }, [session, profile]);
 
   return (
     <div className="w-full max-w-[1328px] h-full flex items-start justify-start mt-6 gap-6">
@@ -178,9 +145,9 @@ function App() {
             ) : (
               <Skeleton className="h-[300px]" />
             )} */}
-            {!isFetching ? (
+            {!isLoading ? (
               topics.length > 0 ? (
-                topics.map((topic, i) => <NewTopic key={i} topic={topic} />)
+                topics.map((topic) => <NewTopic key={topic.id} topic={topic} />)
               ) : (
                 <p className="h-50 flex items-center justify-center col-span-2 text-center text-neutral-400">
                   토픽이 없습니다.

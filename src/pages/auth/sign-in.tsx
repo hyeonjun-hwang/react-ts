@@ -34,7 +34,7 @@ const formSchema = z.object({
   }),
 });
 
-// 유저 정보 store
+// session 정보 store
 import { useUserStore } from "@/store/userStore";
 import { useState } from "react";
 
@@ -107,6 +107,19 @@ function SignIn() {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
+        options: {
+          redirectTo: `${import.meta.env.VITE_SUPABASE_URL}/auth/callback`,
+
+          // 구글 OAuth 로그인 시 추가로 전달되는 파라미터, 토큰 발급 방식과 사용자 동의 화면에 영향을 준다
+          //  access_type : 리프레시 토큰을 발급받기 위한 설정인데
+          //    access_type: "offline" 을 하면 사용자가 애플리케이션을 사용하지 않을때도 리프레시 토큰을 받을 수 있다
+          //  prompt : "consent"
+          //    이미 로그인 했어도 로그인할 때 구글이 항상 동의 화면을 다시 보여주도록 강제하는 설정
+          //    일반적으로 사용자가 한 번 동의하면 구글은 다음에 자동으로 스킵하는데
+          //    이것을 넣는 이유는 보통 리프레시 토큰을 항상 확실하게 받기 위해서
+          //    즉, 사용자에게 다시 동의를 요청하라는 의미
+          queryParams: { access_type: "offline", prompt: "consent" },
+        },
       });
 
       if (error) {
