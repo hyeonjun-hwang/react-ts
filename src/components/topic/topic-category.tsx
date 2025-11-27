@@ -69,7 +69,7 @@ function TopicCategory({ onHandleCategoryChange, categoryValue }: Props) {
             >
               <Button
                 variant={"ghost"}
-                className="w-full flex items-center justify-start"
+                className="w-full flex items-center justify-start cursor-pointer"
               >
                 <IconComp />
                 {item.label}
