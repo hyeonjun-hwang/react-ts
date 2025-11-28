@@ -115,12 +115,17 @@ function App() {
 
           {/* 카드 영역 */}
           <div className="flex gap-6 overflow-x-auto flex-nowrap scroll-hidden">
-            <HotTopic />
-            <HotTopic />
-            <HotTopic />
-            <HotTopic />
-            <HotTopic />
-            <HotTopic />
+            {!isLoading ? (
+              topics.length > 0 ? (
+                topics.map((topic) => <HotTopic key={topic.id} topic={topic} />)
+              ) : (
+                <p className="h-50 flex items-center justify-center col-span-2 text-center text-neutral-400">
+                  토픽이 없습니다.
+                </p>
+              )
+            ) : (
+              <Skeleton className="h-[300px]" />
+            )}
           </div>
         </section>
 

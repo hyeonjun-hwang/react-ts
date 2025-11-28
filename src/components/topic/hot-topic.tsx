@@ -1,7 +1,11 @@
 import { Card, CardContent, CardFooter } from "../ui";
-// import { UserInfo } from "./user-info";
+import { UserInfo } from "./user-info";
+import type { Topic } from "@/types/topic";
+interface Props {
+  topic: Topic;
+}
 
-function HotTopic() {
+function HotTopic({ topic }: Props) {
   return (
     <div>
       <Card className="min-w-70 flex flex-col">
@@ -21,7 +25,7 @@ function HotTopic() {
 
         <CardFooter className="flex items-end justify-between">
           {/* 유저 정보 */}
-          {/* <UserInfo /> */}
+          <UserInfo profile={topic.profiles} />
         </CardFooter>
       </Card>
     </div>
