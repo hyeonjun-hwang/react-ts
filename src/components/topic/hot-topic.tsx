@@ -17,7 +17,8 @@ function HotTopic({ topic }: Props) {
           <div className="p-3 absolute bottom-0 flex flex-col justify-between gap-3">
             <p className="text-lg font-semibold line-clamp-2 z-1 text-neutral-200">
               CEO의 다이어리 CEO의 다이어리 CEO의 다이어리 CEO의 다이어리 CEO의
-              다이어리 CEO의 다이어리 CEO의 다이어리 CEO의 다이어리
+              다이어리 CEO의 다이어리 CEO의 다이어리 CEO의 다이어리 CEO의
+              다이어리
             </p>
           </div>
           <div className="absolute inset-0 bg-linear-to-t from-black via-black/30 to-transparent rounded-b-lg"></div>
