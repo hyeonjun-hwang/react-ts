@@ -11,7 +11,7 @@ function HotTopic({ topic }: Props) {
       <Card className="min-w-70 flex flex-col">
         <CardContent className="relative flex justify-center">
           {/* 이미지 */}
-          <img src="/public/vite.svg" alt="" className="w-full" />
+          <img src="/vite.svg" alt="" className="w-full" />
 
           {/* 제목 */}
           <div className="p-3 absolute bottom-0 flex flex-col justify-between gap-3">
