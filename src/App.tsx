@@ -68,7 +68,7 @@ function App() {
           {/* 타이틀 */}
           <div className="flex flex-col items-center text-lg font-semibold">
             <div className="flex items-center gap-1">
-              <img src="/public/gifs/heart-fire.gif" alt="" className="w-5" />
+              <img src="/gifs/heart-fire.gif" alt="" className="w-5" />
               <p>지식과 인사이트를 모아,</p>
             </div>
             <p>토픽으로 깊이 있게 나누세요!</p>
