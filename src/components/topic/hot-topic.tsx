@@ -1,5 +1,5 @@
 import { Card, CardContent, CardFooter } from "../ui";
-import { UserInfo } from "./user-info";
+// import { UserInfo } from "./user-info";
 
 function HotTopic() {
   return (
@@ -21,7 +21,7 @@ function HotTopic() {
 
         <CardFooter className="flex items-end justify-between">
           {/* 유저 정보 */}
-          <UserInfo />
+          {/* <UserInfo /> */}
         </CardFooter>
       </Card>
     </div>

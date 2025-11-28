@@ -17,7 +17,7 @@ import {
   Label,
   Separator,
 } from "@/components/ui";
-import { useState } from "react";
+// import { useState } from "react";
 import supabase from "@/utils/supabase";
 
 import { Asterisk, ArrowLeft, ChevronRight } from "lucide-react";
@@ -54,8 +54,8 @@ function SignUp() {
   const navigate = useNavigate();
 
   // 필수 동의 항목 상태값
-  const [serviceAgreed, setServiceAgreed] = useState<boolean>(true); // 서비스 이용 약관(필수) 동의 여부
-  const [privacyAgree, setPrivacyAgree] = useState<boolean>(true); // 개인정보 처리방침 약관(필수) 동의 여부
+  // const [serviceAgreed, setServiceAgreed] = useState<boolean>(true); // 서비스 이용 약관(필수) 동의 여부
+  // const [privacyAgree, setPrivacyAgree] = useState<boolean>(true); // 개인정보 처리방침 약관(필수) 동의 여부
 
   // submit 핸들러 정의
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -63,10 +63,10 @@ function SignUp() {
     // ✅ This will be type-safe and validated.
     console.log("values :", values);
 
-    if (!serviceAgreed || !privacyAgree) {
-      toast.warning("필수 동의항목을 체크안댐!");
-      return;
-    }
+    // if (!serviceAgreed || !privacyAgree) {
+    //   toast.warning("필수 동의항목을 체크안댐!");
+    //   return;
+    // }
 
     try {
       const { data, error: supabaseError } = await supabase.auth.signUp({
