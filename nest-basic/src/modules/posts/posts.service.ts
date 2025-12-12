@@ -46,7 +46,7 @@ export class PostsService {
     const post = this.posts.find((post) => post.id === postId);
 
     if (!post) {
-      throw new NotFoundException('데이터를 찾을 수 없습니다');
+      throw new NotFoundException('데이터를 찾을 수 없습니당!');
     }
 
     return post;
